@@ -21,14 +21,17 @@ pub(crate) fn extract_mp4_metadata<R: io::Read + io::Seek>(io: R, file_size: u64
     Ok(MetaData {
         width,
         height,
-        creation_date: Some(creation_date),
+        creation_date,
     })
 }
 
-fn convert_mp4_time_to_system_time(mp4_time: u64) -> SystemTime {
+fn convert_mp4_time_to_system_time(mp4_time: u64) -> Option<SystemTime> {
+    if mp4_time == 0 {
+        return None;
+    }
     // MP4 creation time is based on seconds since 1904-01-01
     let mp4_epoch: SystemTime = std::time::UNIX_EPOCH - Duration::from_secs(2_082_844_800);
-    mp4_epoch + Duration::from_secs(mp4_time)
+    Some(mp4_epoch + Duration::from_secs(mp4_time))
 }
 
 fn find_video_track(tracks: &HashMap<u32, Mp4Track>) -> Option<&Mp4Track> {

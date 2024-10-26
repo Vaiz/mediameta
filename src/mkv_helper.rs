@@ -9,7 +9,7 @@ pub(crate) fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Res
     let video_track = matroska.video_tracks().next();
     let (width, height) = if let Some(video_track) = video_track {
         if let Settings::Video(video) = &video_track.settings {
-            (video.display_width.unwrap_or(0), video.display_height.unwrap_or(0))
+            (video.pixel_width, video.pixel_height)
         } else {
             (0, 0)
         }

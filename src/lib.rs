@@ -8,12 +8,14 @@ use std::io::BufReader;
 use std::path::Path;
 use std::time::SystemTime;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MetaData {
     pub width: u64,
     pub height: u64,
     pub creation_date: Option<SystemTime>,
 }
+
+#[derive(Debug, PartialEq)]
 pub enum ContainerType {
     Mp4,
     Mkv,
@@ -42,7 +44,10 @@ pub fn extract_file_metadata(file_path: &str) -> anyhow::Result<MetaData> {
     extract_metadata(reader, size, container_type)
 }
 
-pub fn extract_metadata<R: io::Read + io::Seek>(io: R, file_size: u64, container_type: ContainerType) -> anyhow::Result<MetaData> {
+pub fn extract_metadata<R>(io: R, file_size: u64, container_type: ContainerType) -> anyhow::Result<MetaData>
+where
+    R: io::Read + io::Seek,
+{
     match container_type {
         ContainerType::Mp4 => { mp4_helper::extract_mp4_metadata(io, file_size) }
         ContainerType::Mkv => { mkv_helper::extract_mkv_metadata(io) }
