@@ -7,6 +7,7 @@ edition = "2021"
 anyhow = "1.0.91"
 matroska = "0.28.0"
 mp4 = "0.14.0"
+chrono = { version = "0.4.38", default-features = false, features = ["std"] }
 
 [patch.crates-io]
 mp4 = { git = "https://github.com/alfg/mp4-rust.git", rev = "35560e94f5e871a2b2d88bfe964013b39af131e8" } # fix 'avcc not found'

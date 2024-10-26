@@ -2,6 +2,7 @@ mod mp4_helper;
 mod mkv_helper;
 
 use anyhow::Context;
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io;
 use std::io::BufReader;
@@ -13,6 +14,19 @@ pub struct MetaData {
     pub width: u64,
     pub height: u64,
     pub creation_date: Option<SystemTime>,
+}
+
+impl Display for MetaData {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let creation_date = match self.creation_date {
+            Some(time) => {
+                let datetime: chrono::DateTime<chrono::Utc> = time.into();
+                datetime.to_rfc3339()
+            }
+            None => "None".to_string(),
+        };
+        write!(f, "width: {}, height: {}, creation_date: {}", self.width, self.height, creation_date)
+    }
 }
 
 #[derive(Debug, PartialEq)]

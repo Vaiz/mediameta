@@ -25,3 +25,18 @@ fn test_540() -> anyhow::Result<()> {
     assert_eq!(expected, meta);
     Ok(())
 }
+
+#[test]
+fn test_date() -> anyhow::Result<()> {
+    let path = "test-data/sample-mkv-files-sample_640x360_with_date.mkv";
+    let meta = video_info::extract_file_metadata(path)?;
+    println!("{meta}");
+
+    let expected = video_info::MetaData {
+        width: 640,
+        height: 360,
+        creation_date: Some(super::parse_date("2011-04-17T17:33:45")),
+    };
+    assert_eq!(expected, meta);
+    Ok(())
+}
