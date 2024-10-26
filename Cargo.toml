@@ -1,0 +1,12 @@
+[package]
+name = "video-info"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.91"
+matroska = "0.28.0"
+mp4 = "0.14.0"
+
+[patch.crates-io]
+mp4 = { git = "https://github.com/alfg/mp4-rust.git", rev = "35560e94f5e871a2b2d88bfe964013b39af131e8" } # fix 'avcc not found'
