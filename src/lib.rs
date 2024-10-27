@@ -1,3 +1,4 @@
+mod exif_helper;
 mod mkv_helper;
 mod mp4_helper;
 
@@ -37,6 +38,7 @@ impl Display for MetaData {
 pub enum ContainerType {
     Mp4,
     Mkv,
+    Exif,
 }
 
 fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerType> {
@@ -50,7 +52,8 @@ fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerT
     match file_extension.as_str() {
         "mp4" => Ok(ContainerType::Mp4),
         "mkv" => Ok(ContainerType::Mkv),
-        _ => anyhow::bail!("Unsupported container format: {}", file_extension),
+        _ => Ok(ContainerType::Exif),
+        //_ => anyhow::bail!("Unsupported container format: {}", file_extension),
     }
 }
 
@@ -73,10 +76,11 @@ pub fn extract_metadata<R>(
     container_type: ContainerType,
 ) -> anyhow::Result<MetaData>
 where
-    R: io::Read + io::Seek,
+    R: io::BufRead + io::Seek,
 {
     match container_type {
         ContainerType::Mp4 => mp4_helper::extract_mp4_metadata(io, file_size),
         ContainerType::Mkv => mkv_helper::extract_mkv_metadata(io),
+        ContainerType::Exif => exif_helper::extract_exif_metadata(io),
     }
 }
