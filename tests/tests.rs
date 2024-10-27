@@ -1,5 +1,7 @@
 use std::time::SystemTime;
 
+#[path = "tests/exif.rs"]
+mod exif;
 #[path = "tests/metadata.rs"]
 mod metadata;
 #[path = "tests/mkv.rs"]
