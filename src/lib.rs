@@ -80,15 +80,3 @@ where
         ContainerType::Mkv => mkv_helper::extract_mkv_metadata(io),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() -> anyhow::Result<()> {
-        let file_path = "D:/tmp/1.mp4"; // Replace with your file path
-        println!("{:?}", extract_file_metadata(file_path)?);
-        Ok(())
-    }
-}
