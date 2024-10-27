@@ -41,7 +41,7 @@ pub enum ContainerType {
     Exif,
 }
 
-fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerType> {
+pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerType> {
     let file_extension = file_path
         .as_ref()
         .extension()
@@ -52,8 +52,9 @@ fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerT
     match file_extension.as_str() {
         "mp4" => Ok(ContainerType::Mp4),
         "mkv" => Ok(ContainerType::Mkv),
-        _ => Ok(ContainerType::Exif),
-        //_ => anyhow::bail!("Unsupported container format: {}", file_extension),
+        "jpg" | "jpeg" | "tiff" | "tif" | "webp" | "heif" | "heic" |
+        "dng" | "cr2" | "cr3" | "nef" | "arw" | "raf" | "rw2" | "orf" => Ok(ContainerType::Exif),
+        _ => anyhow::bail!("Unsupported container format: {}", file_extension),
     }
 }
 
