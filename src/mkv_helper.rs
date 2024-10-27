@@ -5,7 +5,8 @@ use std::io;
 use std::time::SystemTime;
 
 pub(crate) fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<MetaData> {
-    let matroska = matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;
+    let matroska =
+        matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;
     let video_track = matroska.video_tracks().next();
     let (width, height) = if let Some(video_track) = video_track {
         if let Settings::Video(video) = &video_track.settings {
@@ -17,7 +18,11 @@ pub(crate) fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Res
         (0, 0)
     };
 
-    let creation_date = matroska.info.date_utc.as_ref().map(convert_mkv_time_to_system_time);
+    let creation_date = matroska
+        .info
+        .date_utc
+        .as_ref()
+        .map(convert_mkv_time_to_system_time);
 
     Ok(MetaData {
         width,

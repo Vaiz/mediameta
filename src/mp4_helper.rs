@@ -5,9 +5,12 @@ use std::collections::HashMap;
 use std::io;
 use std::time::SystemTime;
 
-pub(crate) fn extract_mp4_metadata<R: io::Read + io::Seek>(io: R, file_size: u64) -> anyhow::Result<MetaData> {
-    let mp4 = mp4::Mp4Reader::read_header(io, file_size)
-        .with_context(|| "Failed to read MP4 header")?;
+pub(crate) fn extract_mp4_metadata<R: io::Read + io::Seek>(
+    io: R,
+    file_size: u64,
+) -> anyhow::Result<MetaData> {
+    let mp4 =
+        mp4::Mp4Reader::read_header(io, file_size).with_context(|| "Failed to read MP4 header")?;
 
     let video_track = find_video_track(mp4.tracks());
     let (width, height) = if let Some(track) = video_track {
@@ -32,7 +35,8 @@ fn convert_mp4_time_to_system_time(mp4_time: u64) -> Option<SystemTime> {
         return None;
     }
     // MP4 creation time is based on seconds since 1904-01-01
-    let utc = Utc.with_ymd_and_hms(1904, 1, 1, 0, 0, 0).unwrap() + Duration::seconds(mp4_time as i64);
+    let utc =
+        Utc.with_ymd_and_hms(1904, 1, 1, 0, 0, 0).unwrap() + Duration::seconds(mp4_time as i64);
     Some(utc.into())
 }
 
@@ -40,7 +44,6 @@ fn find_video_track(tracks: &HashMap<u32, Mp4Track>) -> Option<&Mp4Track> {
     const NOT_VIDEO: mp4::TrackType = mp4::TrackType::Subtitle;
     tracks
         .iter()
-        .find(|(_, track)|
-            mp4::TrackType::Video == track.track_type().unwrap_or(NOT_VIDEO))
+        .find(|(_, track)| mp4::TrackType::Video == track.track_type().unwrap_or(NOT_VIDEO))
         .map(|(_, track)| track)
 }

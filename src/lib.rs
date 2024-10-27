@@ -1,5 +1,5 @@
-mod mp4_helper;
 mod mkv_helper;
+mod mp4_helper;
 
 use anyhow::Context;
 use std::fmt::{Display, Formatter};
@@ -25,7 +25,11 @@ impl Display for MetaData {
             }
             None => "None".to_string(),
         };
-        write!(f, "width: {}, height: {}, creation_date: {}", self.width, self.height, creation_date)
+        write!(
+            f,
+            "width: {}, height: {}, creation_date: {}",
+            self.width, self.height, creation_date
+        )
     }
 }
 
@@ -35,8 +39,9 @@ pub enum ContainerType {
     Mkv,
 }
 
-fn get_container_type(file_path: &Path) -> anyhow::Result<ContainerType> {
+fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerType> {
     let file_extension = file_path
+        .as_ref()
         .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("")
@@ -45,29 +50,36 @@ fn get_container_type(file_path: &Path) -> anyhow::Result<ContainerType> {
     match file_extension.as_str() {
         "mp4" => Ok(ContainerType::Mp4),
         "mkv" => Ok(ContainerType::Mkv),
-        _ => anyhow::bail!("Unsupported container format: {}", file_extension)
+        _ => anyhow::bail!("Unsupported container format: {}", file_extension),
     }
 }
 
-pub fn extract_file_metadata(file_path: &str) -> anyhow::Result<MetaData> {
-    let path = Path::new(file_path);
-    let container_type = get_container_type(path)?;
-    let file = File::open(file_path).with_context(|| format!("Failed to open file: {}", file_path))?;
+pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
+    let container_type = get_container_type(&file_path)?;
+    let file = File::open(&file_path).with_context(|| {
+        format!(
+            "Failed to open file {}",
+            file_path.as_ref().to_string_lossy()
+        )
+    })?;
     let size = file.metadata()?.len();
     let reader = BufReader::new(file);
     extract_metadata(reader, size, container_type)
 }
 
-pub fn extract_metadata<R>(io: R, file_size: u64, container_type: ContainerType) -> anyhow::Result<MetaData>
+pub fn extract_metadata<R>(
+    io: R,
+    file_size: u64,
+    container_type: ContainerType,
+) -> anyhow::Result<MetaData>
 where
     R: io::Read + io::Seek,
 {
     match container_type {
-        ContainerType::Mp4 => { mp4_helper::extract_mp4_metadata(io, file_size) }
-        ContainerType::Mkv => { mkv_helper::extract_mkv_metadata(io) }
+        ContainerType::Mp4 => mp4_helper::extract_mp4_metadata(io, file_size),
+        ContainerType::Mkv => mkv_helper::extract_mkv_metadata(io),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
