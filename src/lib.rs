@@ -23,6 +23,40 @@ pub use mp4_helper::extract_mp4_metadata;
 
 #[cfg(feature = "mediainfo")]
 pub mod mediainfo {
+    //! This module contains function that relies on third party tool.
+    //!
+    //! MediaInfo official website: [mediaarea.net/en/MediaInfo](https://mediaarea.net/en/MediaInfo)
+    //!
+    //! # Installing mediainfo
+    //!
+    //! The mediainfo tool is required to use the [`extract_metadata`] function. Follow the
+    //! instructions below to install mediainfo on your system.
+    //!
+    //! ## Windows
+    //!
+    //! To install mediainfo on Windows, you can use the winget package manager:
+    //! ```powershell
+    //! winget install MediaArea.MediaInfo
+    //! ```
+    //!
+    //! ## macOS
+    //! For macOS users, mediainfo can be installed using Homebrew:
+    //! ```bash
+    //! brew install mediainfo
+    //! ```
+    //!
+    //! ## Linux
+    //!
+    //! On most Linux distributions, mediainfo can be installed via the package manager.
+    //!
+    //! ## Verifying Installation
+    //!
+    //! After installation, verify that mediainfo is available by running:
+    //!
+    //! ```shell
+    //! mediainfo --version
+    //! ```
+    //! If correctly installed, this should display the version of mediainfo.
     pub use super::mediainfo_helper::extract_metadata;
 }
 
@@ -129,7 +163,7 @@ pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result
 
 /// Extracts metadata from a file.
 ///
-/// This function opens a file using [BufReader](std::io::BufReader), and then calls
+/// This function opens a file using [BufReader], and then calls
 /// [`extract_metadata`].
 pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let container_type = get_container_type(&file_path)?;
