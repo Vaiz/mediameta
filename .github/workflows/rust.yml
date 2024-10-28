@@ -50,7 +50,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: Swatinem/rust-cache@v2
-    - uses: jakewilkins/install-winget@v1
+    - uses: Cyberboss/install-winget@v1
     - name: Install MediaInfo
       run: |
         winget install MediaArea.MediaInfo
