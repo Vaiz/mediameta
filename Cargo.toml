@@ -6,9 +6,7 @@ description = "This library provides a straightforward API to extract metadata f
 homepage = "https://github.com/Vaiz/video-info"
 repository = "https://github.com/Vaiz/video-info"
 readme = "README.md"
-keywords = [
-    "mp4", "mkv", "media"
-]
+keywords = ["mp4", "mkv", "media", "mediainfo", "exif"]
 license = "Unlicense"
 
 [dependencies]
