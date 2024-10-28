@@ -1,5 +1,5 @@
 [package]
-name = "video-info"
+name = "mediameta"
 version = "0.1.0"
 edition = "2021"
 

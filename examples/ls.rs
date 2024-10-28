@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
             Ok(entry) => {
                 let name = entry.file_name();
                 if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    let meta = video_info::extract_file_metadata(entry.path());
+                    let meta = mediameta::extract_file_metadata(entry.path());
                     if let Ok(meta) = meta {
                         println!(
                             "{:<80} {:>4}x{:<4} {}",
