@@ -38,11 +38,9 @@ fn extract_metadata_from_json(json: &str) -> anyhow::Result<MetaData> {
         match track {
             Track::General(general) => {
                 if let Some(recorded_date) = general.recorded_date {
-                    let datetime: DateTime<Utc> =
-                        NaiveDateTime::parse_from_str(&recorded_date, "%Y-%m-%d %H:%M:%S UTC")
-                            .expect("Failed to parse date")
-                            .and_utc();
-                    metadata.creation_date = Some(SystemTime::from(datetime));
+                    metadata.creation_date = Some(parse_datetime(&recorded_date));
+                } else if let Some(encoded_date) = general.encoded_date {
+                    metadata.creation_date = Some(parse_datetime(&encoded_date));
                 }
             }
             Track::Video(video) => {
@@ -74,6 +72,8 @@ enum Track {
 struct GeneralTrack {
     #[serde(rename = "Recorded_Date")]
     recorded_date: Option<String>,
+    #[serde(rename = "Encoded_Date")]
+    encoded_date: Option<String>,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -100,6 +100,14 @@ struct Media {
 #[derive(serde::Deserialize, Debug)]
 struct Root {
     media: Media,
+}
+
+fn parse_datetime(datetime: &str) -> SystemTime {
+    let datetime: DateTime<Utc> = NaiveDateTime::parse_from_str(&datetime, "%Y-%m-%d %H:%M:%S UTC")
+        .with_context(|| format!("Failed to parse date {datetime}"))
+        .unwrap()
+        .and_utc();
+    datetime.into()
 }
 
 #[cfg(test)]
