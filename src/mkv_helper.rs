@@ -4,7 +4,7 @@ use matroska::Settings;
 use std::io;
 use std::time::SystemTime;
 
-pub(crate) fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<MetaData> {
+pub fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<MetaData> {
     let matroska =
         matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;
     let video_track = matroska.video_tracks().next();

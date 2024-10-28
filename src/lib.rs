@@ -2,6 +2,9 @@ mod exif_helper;
 mod mkv_helper;
 mod mp4_helper;
 
+#[cfg(feature = "mediainfo")]
+mod mediainfo_helper;
+
 use anyhow::Context;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
@@ -9,6 +12,15 @@ use std::io;
 use std::io::BufReader;
 use std::path::Path;
 use std::time::SystemTime;
+
+pub use exif_helper::extract_exif_metadata;
+pub use mkv_helper::extract_mkv_metadata;
+pub use mp4_helper::extract_mp4_metadata;
+
+#[cfg(feature = "mediainfo")]
+pub mod mediainfo {
+    pub use super::mediainfo_helper::extract_metadata;
+}
 
 #[derive(Debug, PartialEq)]
 pub struct MetaData {
@@ -52,8 +64,8 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
     match file_extension.as_str() {
         "mp4" => Ok(ContainerType::Mp4),
         "mkv" => Ok(ContainerType::Mkv),
-        "jpg" | "jpeg" | "tiff" | "tif" | "webp" | "heif" | "heic" |
-        "dng" | "cr2" | "cr3" | "nef" | "arw" | "raf" | "rw2" | "orf" => Ok(ContainerType::Exif(file_extension)),
+        "jpg" | "jpeg" | "tiff" | "tif" | "webp" | "heif" | "heic" | "dng" | "cr2" | "cr3"
+        | "nef" | "arw" | "raf" | "rw2" | "orf" => Ok(ContainerType::Exif(file_extension)),
         _ => anyhow::bail!("Unsupported container format: {}", file_extension),
     }
 }
@@ -80,8 +92,8 @@ where
     R: io::BufRead + io::Seek,
 {
     match container_type {
-        ContainerType::Mp4 => mp4_helper::extract_mp4_metadata(io, file_size),
-        ContainerType::Mkv => mkv_helper::extract_mkv_metadata(io),
-        ContainerType::Exif(extension) => exif_helper::extract_exif_metadata(io, extension),
+        ContainerType::Mp4 => extract_mp4_metadata(io, file_size),
+        ContainerType::Mkv => extract_mkv_metadata(io),
+        ContainerType::Exif(extension) => extract_exif_metadata(io, extension),
     }
 }
