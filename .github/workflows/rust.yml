@@ -45,6 +45,20 @@ jobs:
     - name: Run tests
       run: cargo test --verbose --features=mediainfo
 
+  build-with-mediainfo-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: Swatinem/rust-cache@v2
+    - uses: jakewilkins/install-winget@v1
+    - name: Install MediaInfo
+      run: |
+        winget install MediaArea.MediaInfo
+    - name: Build
+      run: cargo build --verbose --features=mediainfo
+    - name: Run tests
+      run: cargo test --verbose --features=mediainfo
+
   cargo-fmt:
     name: cargo fmt -- --check
     runs-on: ubuntu-latest
