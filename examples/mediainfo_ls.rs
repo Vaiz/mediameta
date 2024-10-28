@@ -12,6 +12,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let dir_path = &args[1];
+    let start = std::time::Instant::now();
 
     let entries =
         fs::read_dir(dir_path).with_context(|| format!("failed to read_dir {dir_path}"))?;
@@ -40,6 +41,9 @@ fn main() -> anyhow::Result<()> {
             Err(err) => eprintln!("Error reading entry: {}", err),
         }
     }
+
+    let elapsed = start.elapsed();
+    println!("Elapsed time: {}.{:>03}", elapsed.as_secs(), elapsed.as_millis() % 1000);
 
     Ok(())
 }
