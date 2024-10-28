@@ -34,6 +34,7 @@ fn extract_metadata_from_json(json: &str) -> anyhow::Result<MetaData> {
         height: 0,
         creation_date: None,
     };
+    let mut is_media = false;
     for track in root.media.track {
         match track {
             Track::General(general) => {
@@ -46,13 +47,19 @@ fn extract_metadata_from_json(json: &str) -> anyhow::Result<MetaData> {
             Track::Video(video) => {
                 metadata.width = video.width.parse()?;
                 metadata.height = video.height.parse()?;
+                is_media = true;
             }
             Track::Image(image) => {
                 metadata.width = image.width.parse()?;
                 metadata.height = image.height.parse()?;
+                is_media = true;
             }
             Track::Other => {}
         }
+    }
+
+    if !is_media {
+        bail!("Failed to find any media metadata");
     }
 
     Ok(metadata)

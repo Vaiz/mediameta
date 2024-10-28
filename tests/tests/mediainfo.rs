@@ -110,3 +110,10 @@ fn test_mp4_date() -> anyhow::Result<()> {
     assert_eq!(expected, meta);
     Ok(())
 }
+
+#[test]
+fn test_txt_file() {
+    let path = "test-data/source.txt";
+    let meta = extract_metadata(path);
+    assert!(meta.is_err());
+}
