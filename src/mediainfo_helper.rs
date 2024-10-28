@@ -49,6 +49,10 @@ fn extract_metadata_from_json(json: &str) -> anyhow::Result<MetaData> {
                 metadata.width = video.width.parse()?;
                 metadata.height = video.height.parse()?;
             }
+            Track::Image(image) => {
+                metadata.width = image.width.parse()?;
+                metadata.height = image.height.parse()?;
+            }
             Track::Other => {}
         }
     }
@@ -61,6 +65,7 @@ fn extract_metadata_from_json(json: &str) -> anyhow::Result<MetaData> {
 enum Track {
     General(GeneralTrack),
     Video(VideoTrack),
+    Image(ImageTrack),
     #[serde(other)]
     Other,
 }
@@ -73,6 +78,14 @@ struct GeneralTrack {
 
 #[derive(serde::Deserialize, Debug)]
 struct VideoTrack {
+    #[serde(rename = "Width")]
+    width: String,
+    #[serde(rename = "Height")]
+    height: String,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct ImageTrack {
     #[serde(rename = "Width")]
     width: String,
     #[serde(rename = "Height")]
@@ -193,6 +206,56 @@ mod tests {
             width: 1280,
             height: 720,
             creation_date: Some(crate::parse_date("2013-11-09T15:07:11")),
+        };
+        assert_eq!(metadata, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn test_jpg() -> anyhow::Result<()> {
+        let json_str = r#"
+{
+  "creatingLibrary": {
+    "name": "MediaInfoLib",
+    "version": "24.06",
+    "url": "https://mediaarea.net/MediaInfo"
+  },
+  "media": {
+    "@ref": "test-data/sample-exif_1200x800_with_date.jpg",
+    "track": [
+      {
+        "@type": "General",
+        "ImageCount": "1",
+        "FileExtension": "jpg",
+        "Format": "JPEG",
+        "FileSize": "116025",
+        "StreamSize": "0",
+        "File_Created_Date": "2024-10-27 13:47:23.630 UTC",
+        "File_Created_Date_Local": "2024-10-27 14:47:23.630",
+        "File_Modified_Date": "2024-10-27 13:47:23.630 UTC",
+        "File_Modified_Date_Local": "2024-10-27 14:47:23.630"
+      },
+      {
+        "@type": "Image",
+        "Format": "JPEG",
+        "Width": "1200",
+        "Height": "800",
+        "ColorSpace": "YUV",
+        "ChromaSubsampling": "4:2:0",
+        "BitDepth": "8",
+        "Compression_Mode": "Lossy",
+        "StreamSize": "116025"
+      }
+    ]
+  }
+}
+"#;
+
+        let metadata = super::extract_metadata_from_json(json_str)?;
+        let expected = MetaData {
+            width: 1200,
+            height: 800,
+            creation_date: None,
         };
         assert_eq!(metadata, expected);
         Ok(())

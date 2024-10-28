@@ -7,4 +7,8 @@ mod mkv;
 #[path = "tests/mp4.rs"]
 mod mp4;
 
+#[cfg(feature = "mediainfo")]
+#[path = "tests/mediainfo.rs"]
+mod mediainfo;
+
 use video_info::parse_date;
