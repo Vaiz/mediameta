@@ -120,7 +120,8 @@ struct Root {
 }
 
 fn parse_datetime(datetime: &str) -> SystemTime {
-    let datetime: DateTime<Utc> = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%d %H:%M:%S UTC")
+    let datetime = datetime.trim_start_matches("UTC ").trim_end_matches(" UTC");
+    let datetime: DateTime<Utc> = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%d %H:%M:%S")
         .with_context(|| format!("Failed to parse date {datetime}"))
         .unwrap()
         .and_utc();
