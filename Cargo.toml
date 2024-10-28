@@ -25,3 +25,7 @@ mp4 = { git = "https://github.com/alfg/mp4-rust.git", rev = "35560e94f5e871a2b2d
 [[example]]
 name = "mediainfo"
 required-features = ["mediainfo"]
+
+[[example]]
+name = "mediainfo_ls"
+required-features = ["mediainfo"]
