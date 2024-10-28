@@ -23,9 +23,14 @@ mediainfo = ["dep:cmd_lib", "dep:serde_json", "dep:which"]
 mp4 = { git = "https://github.com/alfg/mp4-rust.git", rev = "35560e94f5e871a2b2d88bfe964013b39af131e8" } # fix 'avcc not found'
 
 [[example]]
+name = "combined_ls"
+required-features = ["mediainfo"]
+
+[[example]]
 name = "mediainfo"
 required-features = ["mediainfo"]
 
 [[example]]
 name = "mediainfo_ls"
 required-features = ["mediainfo"]
+
