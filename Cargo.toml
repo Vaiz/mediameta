@@ -13,6 +13,7 @@ kamadak-exif = "0.5.5"
 image = { version = "0.25.4", optional = true }
 serde_json = { version = "1.0.132", optional = true }
 which = { version = "6.0.3", optional = true }
+serde = { version = "1.0.213", features = ["derive"] }
 
 [features]
 image = ["dep:image"]

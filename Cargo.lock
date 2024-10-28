@@ -1267,6 +1267,7 @@ dependencies = [
  "kamadak-exif",
  "matroska",
  "mp4",
+ "serde",
  "serde_json",
  "which",
 ]

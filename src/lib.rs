@@ -97,3 +97,13 @@ where
         ContainerType::Exif(extension) => extract_exif_metadata(io, extension),
     }
 }
+
+/// This function is solely for test purposes
+#[doc(hidden)]
+pub fn parse_date(date: &str) -> SystemTime {
+    use chrono::prelude::*;
+    let naive_datetime =
+        NaiveDateTime::parse_from_str(date, "%Y-%m-%dT%H:%M:%S").expect("Failed to parse date");
+
+    naive_datetime.and_utc().into()
+}

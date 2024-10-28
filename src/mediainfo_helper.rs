@@ -1,8 +1,10 @@
 use crate::MetaData;
-use anyhow::Context;
+use anyhow::{bail, Context};
+use chrono::prelude::*;
 use cmd_lib::run_fun;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, LazyLock};
+use std::time::SystemTime;
 
 static MEDIAINFO_PATH: LazyLock<Result<PathBuf, Arc<anyhow::Error>>> = LazyLock::new(|| {
     which::which("mediainfo")
@@ -13,16 +15,186 @@ static MEDIAINFO_PATH: LazyLock<Result<PathBuf, Arc<anyhow::Error>>> = LazyLock:
 pub fn extract_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let mediainfo = (*MEDIAINFO_PATH).as_ref();
     if mediainfo.is_err() {
-        anyhow::bail!(mediainfo.unwrap_err().to_string());
+        bail!(mediainfo.unwrap_err().to_string());
     }
     let mediainfo = mediainfo.unwrap();
     let file_path = file_path.as_ref();
     if !file_path.exists() {
-        anyhow::bail!("Cannot find file {}", file_path.to_string_lossy());
+        bail!("Cannot find file {}", file_path.to_string_lossy());
     }
-    println!("path: {}", file_path.to_string_lossy());
+
     let result = run_fun!($mediainfo --Output=JSON $file_path)?;
-    println!("result: {result}");
-    let json = serde_json::from_str(&result)?;
-    unimplemented!()
+    extract_metadata_from_json(&result)
+}
+
+fn extract_metadata_from_json(json: &str) -> anyhow::Result<MetaData> {
+    let root: Root = serde_json::from_str(json)?;
+    let mut metadata = MetaData {
+        width: 0,
+        height: 0,
+        creation_date: None,
+    };
+    for track in root.media.track {
+        match track {
+            Track::General(general) => {
+                if let Some(recorded_date) = general.recorded_date {
+                    let datetime: DateTime<Utc> =
+                        NaiveDateTime::parse_from_str(&recorded_date, "%Y-%m-%d %H:%M:%S UTC")
+                            .expect("Failed to parse date")
+                            .and_utc();
+                    metadata.creation_date = Some(SystemTime::from(datetime));
+                }
+            }
+            Track::Video(video) => {
+                metadata.width = video.width.parse()?;
+                metadata.height = video.height.parse()?;
+            }
+            Track::Other => {}
+        }
+    }
+
+    Ok(metadata)
+}
+
+#[derive(serde::Deserialize, Debug)]
+#[serde(tag = "@type")]
+enum Track {
+    General(GeneralTrack),
+    Video(VideoTrack),
+    #[serde(other)]
+    Other,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct GeneralTrack {
+    #[serde(rename = "Recorded_Date")]
+    recorded_date: Option<String>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct VideoTrack {
+    #[serde(rename = "Width")]
+    width: String,
+    #[serde(rename = "Height")]
+    height: String,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct Media {
+    track: Vec<Track>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct Root {
+    media: Media,
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::MetaData;
+
+    #[test]
+    fn test_mp4() -> anyhow::Result<()> {
+        let json_str = r#"
+{
+    "creatingLibrary": {
+        "name": "MediaInfoLib",
+        "version": "24.06",
+        "url": "https://mediaarea.net/MediaInfo"
+    },
+    "media": {
+        "@ref": "test-data\\sample-mp4-files-sample_640x360.mp4",
+        "track": [
+            {
+                "@type": "General",
+                "VideoCount": "1",
+                "FileExtension": "mp4",
+                "Format": "MPEG-4",
+                "...": "..."
+            },
+            {
+                "@type": "Video",
+                "StreamOrder": "0",
+                "ID": "1",
+                "Format": "AVC",
+                "Width": "640",
+                "Height": "360",
+                "...": "..."
+            }
+        ]
+    }
+}
+"#;
+
+        let metadata = super::extract_metadata_from_json(json_str)?;
+        let expected = MetaData {
+            width: 640,
+            height: 360,
+            creation_date: None,
+        };
+        assert_eq!(metadata, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn test_mts() -> anyhow::Result<()> {
+        let json_str = r#"
+{
+    "creatingLibrary": {
+        "name": "MediaInfoLib",
+        "version": "24.06",
+        "url": "https://mediaarea.net/MediaInfo"
+    },
+    "media": {
+        "@ref": "D:\\tmp\\00000.MTS",
+        "track": [
+            {
+                "@type": "General",
+                "ID": "0",
+                "VideoCount": "1",
+                "AudioCount": "1",
+                "TextCount": "1",
+                "FileExtension": "MTS",
+                "Recorded_Date": "2013-11-09 15:07:11 UTC",
+                "...": "..."
+            },
+            {
+                "@type": "Video",
+                "StreamOrder": "0-0",
+                "ID": "4113",
+                "MenuID": "1",
+                "Format": "AVC",
+                "Width": "1280",
+                "Height": "720",
+                "...": "..."
+            },
+            {
+                "@type": "Audio",
+                "StreamOrder": "0-1",
+                "ID": "4352",
+                "MenuID": "1",
+                "Format": "AC-3",
+                "...": "..."
+            },
+            {
+                "@type": "Text",
+                "StreamOrder": "0-2",
+                "ID": "4608",
+                "MenuID": "1",
+                "...": "..."
+            }
+        ]
+    }
+}
+"#;
+
+        let metadata = super::extract_metadata_from_json(json_str)?;
+        let expected = MetaData {
+            width: 1280,
+            height: 720,
+            creation_date: Some(crate::parse_date("2013-11-09T15:07:11")),
+        };
+        assert_eq!(metadata, expected);
+        Ok(())
+    }
 }
