@@ -1,23 +1,29 @@
 [package]
-name = "video-info"
+name = "mediameta"
 version = "0.1.0"
 edition = "2021"
+description = "This library provides a straightforward API to extract metadata from media files."
+homepage = "https://github.com/Vaiz/video-info"
+repository = "https://github.com/Vaiz/video-info"
+readme = "README.md"
+keywords = ["mp4", "mkv", "media", "mediainfo", "exif"]
+license = "Unlicense"
 
 [dependencies]
 anyhow = "1.0.91"
-matroska = "0.28.0"
-mp4 = "0.14.0"
 chrono = { version = "0.4.38", default-features = false, features = ["std"] }
 cmd_lib = { version = "1.9.5", optional = true }
-kamadak-exif = "0.5.5"
 image = { version = "0.25.4", optional = true }
+kamadak-exif = "0.5.5"
+matroska = "0.28.0"
+mp4 = "0.14.0"
+serde = { version = "1.0.213", optional = true, features = ["derive"] }
 serde_json = { version = "1.0.132", optional = true }
 which = { version = "6.0.3", optional = true }
-serde = { version = "1.0.213", features = ["derive"] }
 
 [features]
 image = ["dep:image"]
-mediainfo = ["dep:cmd_lib", "dep:serde_json", "dep:which"]
+mediainfo = ["dep:cmd_lib", "dep:serde", "dep:serde_json", "dep:which"]
 
 [patch.crates-io]
 mp4 = { git = "https://github.com/alfg/mp4-rust.git", rev = "35560e94f5e871a2b2d88bfe964013b39af131e8" } # fix 'avcc not found'

@@ -599,6 +599,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "mediameta"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "cmd_lib",
+ "image",
+ "kamadak-exif",
+ "matroska",
+ "mp4",
+ "serde",
+ "serde_json",
+ "which",
+]
+
+[[package]]
 name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1255,22 +1271,6 @@ name = "version-compare"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "852e951cb7832cb45cb1169900d19760cfa39b82bc0ea9c0e5a14ae88411c98b"
-
-[[package]]
-name = "video-info"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "cmd_lib",
- "image",
- "kamadak-exif",
- "matroska",
- "mp4",
- "serde",
- "serde_json",
- "which",
-]
 
 [[package]]
 name = "wasi"

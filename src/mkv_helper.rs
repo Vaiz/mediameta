@@ -4,6 +4,10 @@ use matroska::Settings;
 use std::io;
 use std::time::SystemTime;
 
+/// Extracts metadata from an MKV (Matroska) container.
+///
+/// This function uses the `Matroska` crate to retrieve metadata, such as video dimensions and creation date,
+/// from an MKV container.
 pub fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<MetaData> {
     let matroska =
         matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;

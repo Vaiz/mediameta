@@ -9,7 +9,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let file_path = &args[1];
-    let meta = video_info::mediainfo::extract_metadata(file_path)?;
+    let meta = mediameta::mediainfo::extract_metadata(file_path)?;
     println!("{meta}");
     Ok(())
 }
