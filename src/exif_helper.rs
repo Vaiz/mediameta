@@ -6,6 +6,11 @@ use std::io;
 use chrono::prelude::*;
 use std::time::SystemTime;
 
+/// Extracts metadata from an Exif-based media file.
+///
+/// This function reads Exif metadata from an image or media file using the `kamadak-exif` crate.
+/// If resolution information is missing from the Exif metadata and the `image` feature is enabled,
+/// it attempts to resolve the image's resolution using the `image` crate.
 pub fn extract_exif_metadata<R>(mut io: R, extension: String) -> anyhow::Result<MetaData>
 where
     R: io::BufRead + io::Seek,

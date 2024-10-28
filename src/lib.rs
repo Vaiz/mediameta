@@ -1,3 +1,7 @@
+//! This library provides a straightforward API to extract essential metadata (such as dimensions
+//! and creation date) from media files. It operates efficiently with multiple file types and
+//! includes an optional fallback using the mediainfo tool for extended metadata extraction.
+
 mod exif_helper;
 mod mkv_helper;
 mod mp4_helper;
@@ -22,6 +26,7 @@ pub mod mediainfo {
     pub use super::mediainfo_helper::extract_metadata;
 }
 
+/// Represents the extracted metadata for a media file.
 #[derive(Debug, PartialEq)]
 pub struct MetaData {
     pub width: u64,
@@ -46,6 +51,11 @@ impl Display for MetaData {
     }
 }
 
+/// Enum representing supported media container types.
+///
+/// This enum defines the container types that can be processed by the library. The `Exif` variant
+/// accepts a custom string to store file extensions for future use, enabling additional flexibility
+/// for Exif-based media.
 #[derive(Debug, PartialEq)]
 pub enum ContainerType {
     Mp4,
@@ -53,6 +63,11 @@ pub enum ContainerType {
     Exif(String),
 }
 
+/// Detects the container type of a media file based on its extension.
+///
+/// This function determines the container type from file extension, which is required by the
+/// [`extract_metadata`] function. It can identify common types, including MP4, MKV, and Exif-based
+/// formats.
 pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerType> {
     let file_extension = file_path
         .as_ref()
@@ -70,6 +85,11 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
     }
 }
 
+/// Combines two methods of metadata extraction to ensure a comprehensive result.
+///
+/// This function requires `metainfo` feature to be enabled. It attempts to retrieve metadata using
+/// [`extract_file_metadata`]. If unsuccessful, it falls back to using the mediainfo tool. This is
+/// the most efficient way of receiving metadata of any media file.
 #[cfg(feature = "mediainfo")]
 pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let result1 = crate::extract_file_metadata(&file_path);
@@ -107,6 +127,10 @@ pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result
     })
 }
 
+/// Extracts metadata from a file.
+///
+/// This function opens a file using [BufReader](std::io::BufReader), and then calls
+/// [`extract_metadata`].
 pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let container_type = get_container_type(&file_path)?;
     let file = File::open(&file_path).with_context(|| {
@@ -120,6 +144,10 @@ pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Met
     extract_metadata(reader, size, container_type)
 }
 
+/// Extracts metadata from a buffered stream.
+///
+/// This function is useful when user code has already opened the file. It avoids unnecessary
+/// additional file access, making metadata extraction more efficient.
 pub fn extract_metadata<R>(
     io: R,
     file_size: u64,

@@ -5,6 +5,10 @@ use std::collections::HashMap;
 use std::io;
 use std::time::SystemTime;
 
+/// Extracts metadata from an MP4 container.
+///
+/// This function utilizes the `mp4` crate to obtain metadata, including dimensions and creation
+/// date, from an MP4 container.
 pub fn extract_mp4_metadata<R: io::Read + io::Seek>(
     io: R,
     file_size: u64,

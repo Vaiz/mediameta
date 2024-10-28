@@ -12,6 +12,16 @@ static MEDIAINFO_PATH: LazyLock<Result<PathBuf, Arc<anyhow::Error>>> = LazyLock:
         .map_err(anyhow::Error::from)
         .map_err(Arc::from)
 });
+
+/// Extracts metadata from a media file using the `mediainfo` tool.
+///
+/// This function relies on the external `mediainfo` tool to gather metadata. It requires that
+/// `mediainfo` is installed and available in the system's path.
+///
+/// ## Notes
+/// This function can provide comprehensive metadata, but usually it is slower than
+/// [`extract_file_metadata`](crate::extract_file_metadata).
+
 pub fn extract_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let mediainfo = (*MEDIAINFO_PATH).as_ref();
     if mediainfo.is_err() {
