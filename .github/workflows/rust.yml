@@ -54,8 +54,9 @@ jobs:
     - name: Install MediaInfo
       run: |
         $location = "$((Get-Item .).FullName)\__mediainfo"
+        Write-Host "Location: $location"
         winget install MediaArea.MediaInfo --accept-source-agreements --accept-package-agreements -l $location
-        $env:Path = "$env:Path;$location;"
+        $location >> $env:GITHUB_PATH
     - name: Build
       run: cargo build --verbose --features=mediainfo
     - name: Run tests
