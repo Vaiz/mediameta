@@ -3,7 +3,7 @@ use std::env;
 use std::fs;
 use std::time::SystemTime;
 
-/// cargo run --example ls test-data
+/// cargo run --features=mediainfo --example mediainfo_ls test-data
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
             Ok(entry) => {
                 let name = entry.file_name();
                 if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    let meta = video_info::extract_file_metadata(entry.path());
+                    let meta = video_info::mediainfo::extract_metadata(entry.path());
                     if let Ok(meta) = meta {
                         println!(
                             "{:<80} {:>4}x{:<4} {}",

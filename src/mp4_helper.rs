@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::io;
 use std::time::SystemTime;
 
-pub(crate) fn extract_mp4_metadata<R: io::Read + io::Seek>(
+pub fn extract_mp4_metadata<R: io::Read + io::Seek>(
     io: R,
     file_size: u64,
 ) -> anyhow::Result<MetaData> {

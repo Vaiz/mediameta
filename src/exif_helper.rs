@@ -6,7 +6,7 @@ use std::io;
 use chrono::prelude::*;
 use std::time::SystemTime;
 
-pub(crate) fn extract_exif_metadata<R>(mut io: R, extension: String) -> anyhow::Result<MetaData>
+pub fn extract_exif_metadata<R>(mut io: R, extension: String) -> anyhow::Result<MetaData>
 where
     R: io::BufRead + io::Seek,
 {

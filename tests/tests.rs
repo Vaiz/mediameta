@@ -1,5 +1,3 @@
-use std::time::SystemTime;
-
 #[path = "tests/exif.rs"]
 mod exif;
 #[path = "tests/metadata.rs"]
@@ -9,12 +7,8 @@ mod mkv;
 #[path = "tests/mp4.rs"]
 mod mp4;
 
-fn parse_date(date: &str) -> SystemTime {
-    use chrono::prelude::*;
-    use std::time::{Duration, UNIX_EPOCH};
+#[cfg(feature = "mediainfo")]
+#[path = "tests/mediainfo.rs"]
+mod mediainfo;
 
-    let naive_datetime =
-        NaiveDateTime::parse_from_str(date, "%Y-%m-%dT%H:%M:%S").expect("Failed to parse date");
-
-    UNIX_EPOCH + Duration::from_secs(naive_datetime.and_utc().timestamp() as u64)
-}
+use video_info::parse_date;
