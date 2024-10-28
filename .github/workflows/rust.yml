@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: Swatinem/rust-cache@v2
     - name: Build
       run: cargo build --verbose
     - name: Run tests
@@ -24,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: Swatinem/rust-cache@v2
     - name: Build
       run: cargo build --verbose --features=image
     - name: Run tests
@@ -33,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: Swatinem/rust-cache@v2
     - name: Install MediaInfo
       run: |
         sudo apt-get update
@@ -41,3 +44,18 @@ jobs:
       run: cargo build --verbose --features=mediainfo
     - name: Run tests
       run: cargo test --verbose --features=mediainfo
+
+  cargo-fmt:
+    name: cargo fmt -- --check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo fmt -- --check
+
+  cargo-doc:
+    name: RUSTDOCFLAGS='--deny warnings' cargo doc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: RUSTDOCFLAGS='--deny warnings' cargo doc --locked --no-deps --document-private-items
