@@ -8,6 +8,8 @@ repository = "https://github.com/Vaiz/mediameta"
 readme = "README.md"
 keywords = ["mp4", "mkv", "media", "mediainfo", "exif"]
 license = "Unlicense"
+authors = ["Vaiz"]
+rust-version = "1.79.0"
 
 [dependencies]
 anyhow = "1.0.91"
