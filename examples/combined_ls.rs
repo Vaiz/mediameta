@@ -1,9 +1,7 @@
 use anyhow::Context;
 use std::env;
 use std::fs;
-use std::path::PathBuf;
 use std::time::SystemTime;
-use video_info::MetaData;
 
 /// cargo run --features=mediainfo --example combined_ls test-data
 fn main() -> anyhow::Result<()> {
@@ -24,7 +22,7 @@ fn main() -> anyhow::Result<()> {
             Ok(entry) => {
                 let name = entry.file_name();
                 if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    let meta = extract_metadata(entry.path());
+                    let meta = video_info::extract_combined_metadata(entry.path());
                     if let Ok(meta) = meta {
                         println!(
                             "{:<80} {:>4}x{:<4} {}",
@@ -45,45 +43,13 @@ fn main() -> anyhow::Result<()> {
     }
 
     let elapsed = start.elapsed();
-    println!("Elapsed time: {}.{:>03}", elapsed.as_secs(), elapsed.as_millis() % 1000);
+    println!(
+        "Elapsed time: {}.{:>03}",
+        elapsed.as_secs(),
+        elapsed.as_millis() % 1000
+    );
 
     Ok(())
-}
-
-fn extract_metadata(path: PathBuf) -> anyhow::Result<MetaData> {
-    let result1 = video_info::extract_file_metadata(&path);
-    if let Ok(meta) = &result1 {
-        if meta.height > 0 && meta.width > 0 && meta.creation_date.is_some() {
-            return result1;
-        }
-    }
-    let result2 = video_info::mediainfo::extract_metadata(&path);
-    if result1.is_err() {
-        return result2;
-    }
-    if result2.is_err() {
-        return result1;
-    }
-
-    let meta1 = result1?;
-    let meta2 = result2?;
-    Ok(MetaData {
-        width: if meta1.width > 0 {
-            meta1.width
-        } else {
-            meta2.width
-        },
-        height: if meta1.height > 0 {
-            meta1.height
-        } else {
-            meta2.height
-        },
-        creation_date: if meta1.creation_date.is_some() {
-            meta1.creation_date
-        } else {
-            meta2.creation_date
-        },
-    })
 }
 
 fn format_creation_date(creation_date: Option<SystemTime>) -> String {

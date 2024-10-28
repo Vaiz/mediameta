@@ -43,7 +43,11 @@ fn main() -> anyhow::Result<()> {
     }
 
     let elapsed = start.elapsed();
-    println!("Elapsed time: {}.{:>03}", elapsed.as_secs(), elapsed.as_millis() % 1000);
+    println!(
+        "Elapsed time: {}.{:>03}",
+        elapsed.as_secs(),
+        elapsed.as_millis() % 1000
+    );
 
     Ok(())
 }

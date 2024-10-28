@@ -70,6 +70,43 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
     }
 }
 
+#[cfg(feature = "mediainfo")]
+pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
+    let result1 = crate::extract_file_metadata(&file_path);
+    if let Ok(meta) = &result1 {
+        if meta.height > 0 && meta.width > 0 && meta.creation_date.is_some() {
+            return result1;
+        }
+    }
+    let result2 = crate::mediainfo::extract_metadata(&file_path);
+    if result1.is_err() {
+        return result2;
+    }
+    if result2.is_err() {
+        return result1;
+    }
+
+    let meta1 = result1?;
+    let meta2 = result2?;
+    Ok(MetaData {
+        width: if meta1.width > 0 {
+            meta1.width
+        } else {
+            meta2.width
+        },
+        height: if meta1.height > 0 {
+            meta1.height
+        } else {
+            meta2.height
+        },
+        creation_date: if meta1.creation_date.is_some() {
+            meta1.creation_date
+        } else {
+            meta2.creation_date
+        },
+    })
+}
+
 pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let container_type = get_container_type(&file_path)?;
     let file = File::open(&file_path).with_context(|| {
