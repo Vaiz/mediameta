@@ -2,6 +2,8 @@
 //! and creation date) from media files. It operates efficiently with multiple file types and
 //! includes an optional fallback using the mediainfo tool for extended metadata extraction.
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 mod exif_helper;
 mod mkv_helper;
 mod mp4_helper;
@@ -22,6 +24,7 @@ pub use mkv_helper::extract_mkv_metadata;
 pub use mp4_helper::extract_mp4_metadata;
 
 #[cfg(feature = "mediainfo")]
+#[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
 pub mod mediainfo {
     //! This module contains function that relies on third party tool.
     //!
@@ -125,6 +128,7 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
 /// [`extract_file_metadata`]. If unsuccessful, it falls back to using the mediainfo tool. This is
 /// the most efficient way of receiving metadata of any media file.
 #[cfg(feature = "mediainfo")]
+#[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
 pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let result1 = crate::extract_file_metadata(&file_path);
     if let Ok(meta) = &result1 {
