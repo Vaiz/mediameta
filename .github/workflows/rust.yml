@@ -53,7 +53,7 @@ jobs:
     - uses: Cyberboss/install-winget@v1
     - name: Install MediaInfo
       run: |
-        winget install MediaArea.MediaInfo
+        winget install MediaArea.MediaInfo --accept-package-agreements
     - name: Build
       run: cargo build --verbose --features=mediainfo
     - name: Run tests
