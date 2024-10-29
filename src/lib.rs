@@ -9,7 +9,8 @@ mod mkv_helper;
 mod mp4_helper;
 
 #[cfg(feature = "mediainfo")]
-mod mediainfo_helper;
+#[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
+pub mod mediainfo;
 
 use anyhow::Context;
 use std::fmt::{Display, Formatter};
@@ -22,46 +23,6 @@ use std::time::SystemTime;
 pub use exif_helper::extract_exif_metadata;
 pub use mkv_helper::extract_mkv_metadata;
 pub use mp4_helper::extract_mp4_metadata;
-
-#[cfg(feature = "mediainfo")]
-#[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
-pub mod mediainfo {
-    //! This module contains function that relies on third party tool.
-    //!
-    //! MediaInfo official website: [mediaarea.net/en/MediaInfo](https://mediaarea.net/en/MediaInfo)
-    //!
-    //! # Installing mediainfo
-    //!
-    //! The mediainfo tool is required to use the [`extract_metadata`] function. Follow the
-    //! instructions below to install mediainfo on your system.
-    //!
-    //! ## Windows
-    //!
-    //! To install mediainfo on Windows, you can use the winget package manager:
-    //! ```powershell
-    //! winget install MediaArea.MediaInfo
-    //! ```
-    //!
-    //! ## macOS
-    //! For macOS users, mediainfo can be installed using Homebrew:
-    //! ```bash
-    //! brew install mediainfo
-    //! ```
-    //!
-    //! ## Linux
-    //!
-    //! On most Linux distributions, mediainfo can be installed via the package manager.
-    //!
-    //! ## Verifying Installation
-    //!
-    //! After installation, verify that mediainfo is available by running:
-    //!
-    //! ```shell
-    //! mediainfo --version
-    //! ```
-    //! If correctly installed, this should display the version of mediainfo.
-    pub use super::mediainfo_helper::extract_metadata;
-}
 
 /// Represents the extracted metadata for a media file.
 #[derive(Debug, PartialEq)]
