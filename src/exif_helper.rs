@@ -48,7 +48,8 @@ fn get_creation_date(exif: &exif::Exif) -> Option<SystemTime> {
         let date_str = creation_date.display_value().with_unit(exif).to_string();
         let date = NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S")
             .map(|naive_datetime| SystemTime::from(Utc.from_utc_datetime(&naive_datetime)))
-            .with_context(|| format!("Failed to parse datetime {date_str}")).unwrap();
+            .with_context(|| format!("Failed to parse datetime {date_str}"))
+            .unwrap();
         Some(date)
     } else {
         None
