@@ -1,6 +1,6 @@
 [package]
 name = "mediameta"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "This library provides a straightforward API to extract metadata from media files."
 homepage = "https://github.com/Vaiz/mediameta"
@@ -10,6 +10,7 @@ keywords = ["mp4", "mkv", "media", "mediainfo", "exif"]
 license = "Unlicense"
 authors = ["Vaiz"]
 rust-version = "1.79.0"
+exclude = ["test-data/**", "tests/**", "scripts/**"]
 
 [dependencies]
 anyhow = "1.0.91"
