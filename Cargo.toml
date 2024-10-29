@@ -9,7 +9,7 @@ readme = "README.md"
 keywords = ["mp4", "mkv", "media", "mediainfo", "exif"]
 license = "Unlicense"
 authors = ["Vaiz"]
-rust-version = "1.79.0"
+rust-version = "1.80.0"
 exclude = ["test-data/**", "tests/**", "scripts/**"]
 
 [dependencies]
