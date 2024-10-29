@@ -162,6 +162,42 @@ where
     }
 }
 
+/// Extracts the creation date from a media file.
+///
+/// This function attempts to retrieve the creation date of a media file using Rust's native
+/// libraries for optimal performance. If this extraction fails and the `mediainfo` feature is
+/// enabled, it falls back to the external `mediainfo` tool to retrieve the date.
+///
+/// Since it only extracts the creation date, this function is more efficient than
+/// [`extract_combined_metadata`], which gathers additional metadata fields.
+pub fn extract_file_creation_date<P: AsRef<Path>>(file_path: P) -> anyhow::Result<SystemTime> {
+    let container_type = get_container_type(&file_path)?;
+    let file = File::open(&file_path).with_context(|| {
+        format!(
+            "Failed to open file {}",
+            file_path.as_ref().to_string_lossy()
+        )
+    })?;
+    let file_size = file.metadata()?.len();
+    let io = BufReader::new(file);
+    let creation_date = match container_type {
+        ContainerType::Mp4 => mp4_helper::extract_mp4_creation_date(io, file_size),
+        ContainerType::Mkv => mkv_helper::extract_mkv_creation_date(io),
+        ContainerType::Exif(_) => exif_helper::extract_exif_creation_date(io),
+    };
+
+    #[cfg(feature = "mediainfo")]
+    if creation_date.is_err() {
+        if let Ok(meta) = mediainfo::extract_metadata(file_path) {
+            if let Some(creation_date) = meta.creation_date {
+                return Ok(creation_date);
+            }
+        }
+    }
+
+    creation_date
+}
+
 /// This function is solely for test purposes
 #[doc(hidden)]
 pub fn parse_date(date: &str) -> SystemTime {

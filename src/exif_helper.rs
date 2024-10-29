@@ -21,23 +21,38 @@ where
         .with_context(|| "Failed to read Exif container")?;
 
     let (width, height) = get_width_and_height(&exif, io, extension);
-
-    let creation_date = exif.get_field(Tag::DateTimeOriginal, exif::In::PRIMARY);
-    let creation_date = if let Some(creation_date) = creation_date {
-        let date_str = creation_date.display_value().with_unit(&exif).to_string();
-        let date = NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S")
-            .map(|naive_datetime| SystemTime::from(Utc.from_utc_datetime(&naive_datetime)))
-            .with_context(|| format!("Failed to parse datetime {date_str}"))?;
-        Some(date)
-    } else {
-        None
-    };
+    let creation_date = get_creation_date(&exif);
 
     Ok(MetaData {
         width,
         height,
         creation_date,
     })
+}
+
+pub(crate) fn extract_exif_creation_date<R>(mut io: R) -> anyhow::Result<SystemTime>
+where
+    R: io::BufRead + io::Seek,
+{
+    let exifreader = exif::Reader::new();
+    let exif = exifreader
+        .read_from_container(&mut io)
+        .with_context(|| "Failed to read Exif container")?;
+
+    get_creation_date(&exif).with_context(|| "EXIF doesn't contain creation date")
+}
+
+fn get_creation_date(exif: &exif::Exif) -> Option<SystemTime> {
+    let creation_date = exif.get_field(Tag::DateTimeOriginal, exif::In::PRIMARY);
+    if let Some(creation_date) = creation_date {
+        let date_str = creation_date.display_value().with_unit(exif).to_string();
+        let date = NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S")
+            .map(|naive_datetime| SystemTime::from(Utc.from_utc_datetime(&naive_datetime)))
+            .with_context(|| format!("Failed to parse datetime {date_str}")).unwrap();
+        Some(date)
+    } else {
+        None
+    }
 }
 
 #[allow(unused_mut, unused_variables)]
