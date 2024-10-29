@@ -30,7 +30,6 @@ fn test_540() -> anyhow::Result<()> {
 fn test_date() -> anyhow::Result<()> {
     let path = "test-data/sample-mkv-files-sample_640x360_with_date.mkv";
     let meta = mediameta::extract_file_metadata(path)?;
-    println!("{meta}");
 
     let expected = mediameta::MetaData {
         width: 640,
