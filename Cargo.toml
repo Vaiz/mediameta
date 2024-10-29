@@ -1,6 +1,6 @@
 [package]
 name = "mediameta"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "This library provides a straightforward API to extract metadata from media files."
 homepage = "https://github.com/Vaiz/mediameta"
@@ -9,7 +9,8 @@ readme = "README.md"
 keywords = ["mp4", "mkv", "media", "mediainfo", "exif"]
 license = "Unlicense"
 authors = ["Vaiz"]
-rust-version = "1.79.0"
+rust-version = "1.80.0"
+exclude = ["test-data/**", "tests/**", "scripts/**"]
 
 [dependencies]
 anyhow = "1.0.91"
@@ -19,7 +20,7 @@ image = { version = "0.25.4", optional = true }
 kamadak-exif = "0.5.5"
 matroska = "0.28.0"
 mp4 = "0.14.0"
-serde = { version = "1.0.213", optional = true, features = ["derive"] }
+serde = { version = "1.0.214", optional = true, features = ["derive"] }
 serde_json = { version = "1.0.132", optional = true }
 which = { version = "6.0.3", optional = true }
 

@@ -32,6 +32,17 @@ pub fn extract_mp4_metadata<R: io::Read + io::Seek>(
     })
 }
 
+pub(crate) fn extract_mp4_creation_date<R: io::Read + io::Seek>(
+    io: R,
+    file_size: u64,
+) -> anyhow::Result<SystemTime> {
+    let mp4 =
+        mp4::Mp4Reader::read_header(io, file_size).with_context(|| "Failed to read MP4 header")?;
+
+    convert_mp4_time_to_system_time(mp4.moov.mvhd.creation_time)
+        .with_context(|| "MP4 creation date is not set")
+}
+
 fn convert_mp4_time_to_system_time(mp4_time: u64) -> Option<SystemTime> {
     use chrono::{Duration, TimeZone, Utc};
 

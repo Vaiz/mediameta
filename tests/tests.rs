@@ -11,4 +11,7 @@ mod mp4;
 #[path = "tests/mediainfo.rs"]
 mod mediainfo;
 
+#[path = "tests/extract_file_creation_date.rs"]
+mod extract_file_creation_date;
+
 use mediameta::parse_date;

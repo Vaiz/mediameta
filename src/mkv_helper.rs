@@ -35,6 +35,20 @@ pub fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<Met
     })
 }
 
+pub(crate) fn extract_mkv_creation_date<R: io::Read + io::Seek>(
+    io: R,
+) -> anyhow::Result<SystemTime> {
+    let matroska =
+        matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;
+
+    matroska
+        .info
+        .date_utc
+        .as_ref()
+        .map(convert_mkv_time_to_system_time)
+        .with_context(|| "MKV creation date is not set")
+}
+
 fn convert_mkv_time_to_system_time(mkv_time: &matroska::DateTime) -> SystemTime {
     use chrono::{Duration, TimeZone, Utc};
     // MKV creation time is based on seconds since 2001-01-01

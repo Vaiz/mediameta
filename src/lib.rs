@@ -1,7 +1,4 @@
-//! This library provides a straightforward API to extract essential metadata (such as dimensions
-//! and creation date) from media files. It operates efficiently with multiple file types and
-//! includes an optional fallback using the mediainfo tool for extended metadata extraction.
-
+#![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 mod exif_helper;
@@ -9,7 +6,8 @@ mod mkv_helper;
 mod mp4_helper;
 
 #[cfg(feature = "mediainfo")]
-mod mediainfo_helper;
+#[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
+pub mod mediainfo;
 
 use anyhow::Context;
 use std::fmt::{Display, Formatter};
@@ -22,46 +20,6 @@ use std::time::SystemTime;
 pub use exif_helper::extract_exif_metadata;
 pub use mkv_helper::extract_mkv_metadata;
 pub use mp4_helper::extract_mp4_metadata;
-
-#[cfg(feature = "mediainfo")]
-#[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
-pub mod mediainfo {
-    //! This module contains function that relies on third party tool.
-    //!
-    //! MediaInfo official website: [mediaarea.net/en/MediaInfo](https://mediaarea.net/en/MediaInfo)
-    //!
-    //! # Installing mediainfo
-    //!
-    //! The mediainfo tool is required to use the [`extract_metadata`] function. Follow the
-    //! instructions below to install mediainfo on your system.
-    //!
-    //! ## Windows
-    //!
-    //! To install mediainfo on Windows, you can use the winget package manager:
-    //! ```powershell
-    //! winget install MediaArea.MediaInfo
-    //! ```
-    //!
-    //! ## macOS
-    //! For macOS users, mediainfo can be installed using Homebrew:
-    //! ```bash
-    //! brew install mediainfo
-    //! ```
-    //!
-    //! ## Linux
-    //!
-    //! On most Linux distributions, mediainfo can be installed via the package manager.
-    //!
-    //! ## Verifying Installation
-    //!
-    //! After installation, verify that mediainfo is available by running:
-    //!
-    //! ```shell
-    //! mediainfo --version
-    //! ```
-    //! If correctly installed, this should display the version of mediainfo.
-    pub use super::mediainfo_helper::extract_metadata;
-}
 
 /// Represents the extracted metadata for a media file.
 #[derive(Debug, PartialEq)]
@@ -199,6 +157,42 @@ where
         ContainerType::Mkv => extract_mkv_metadata(io),
         ContainerType::Exif(extension) => extract_exif_metadata(io, extension),
     }
+}
+
+/// Extracts the creation date from a media file.
+///
+/// This function attempts to retrieve the creation date of a media file using Rust's native
+/// libraries for optimal performance. If this extraction fails and the `mediainfo` feature is
+/// enabled, it falls back to the external `mediainfo` tool to retrieve the date.
+///
+/// Since it only extracts the creation date, this function is more efficient than
+/// [`extract_combined_metadata`], which gathers additional metadata fields.
+pub fn extract_file_creation_date<P: AsRef<Path>>(file_path: P) -> anyhow::Result<SystemTime> {
+    let container_type = get_container_type(&file_path)?;
+    let file = File::open(&file_path).with_context(|| {
+        format!(
+            "Failed to open file {}",
+            file_path.as_ref().to_string_lossy()
+        )
+    })?;
+    let file_size = file.metadata()?.len();
+    let io = BufReader::new(file);
+    let creation_date = match container_type {
+        ContainerType::Mp4 => mp4_helper::extract_mp4_creation_date(io, file_size),
+        ContainerType::Mkv => mkv_helper::extract_mkv_creation_date(io),
+        ContainerType::Exif(_) => exif_helper::extract_exif_creation_date(io),
+    };
+
+    #[cfg(feature = "mediainfo")]
+    if creation_date.is_err() {
+        if let Ok(meta) = mediainfo::extract_metadata(file_path) {
+            if let Some(creation_date) = meta.creation_date {
+                return Ok(creation_date);
+            }
+        }
+    }
+
+    creation_date
 }
 
 /// This function is solely for test purposes
