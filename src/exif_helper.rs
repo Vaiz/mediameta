@@ -43,17 +43,18 @@ where
 }
 
 fn get_creation_date(exif: &exif::Exif) -> Option<SystemTime> {
-    let creation_date = exif.get_field(Tag::DateTimeOriginal, exif::In::PRIMARY);
-    if let Some(creation_date) = creation_date {
-        let date_str = creation_date.display_value().with_unit(exif).to_string();
-        let date = NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S")
-            .map(|naive_datetime| SystemTime::from(Utc.from_utc_datetime(&naive_datetime)))
-            .with_context(|| format!("Failed to parse datetime {date_str}"))
-            .unwrap();
-        Some(date)
-    } else {
-        None
+    for tag in [Tag::DateTimeOriginal, Tag::DateTimeDigitized, Tag::DateTime] {
+        let creation_date = exif.get_field(tag, exif::In::PRIMARY);
+        if let Some(creation_date) = creation_date {
+            let date_str = creation_date.display_value().with_unit(exif).to_string();
+            let date = NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S")
+                .map(|naive_datetime| SystemTime::from(Utc.from_utc_datetime(&naive_datetime)))
+                .with_context(|| format!("Failed to parse datetime {date_str}"))
+                .unwrap();
+            return Some(date);
+        }
     }
+    None
 }
 
 #[allow(unused_mut, unused_variables)]
