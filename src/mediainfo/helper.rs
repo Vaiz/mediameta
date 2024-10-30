@@ -7,8 +7,12 @@ use std::sync::{Arc, LazyLock};
 use std::time::SystemTime;
 
 static MEDIAINFO_PATH: LazyLock<Result<PathBuf, Arc<anyhow::Error>>> = LazyLock::new(|| {
+    const ERROR_MSG: &str = r#"
+Cannot find mediainfo binary.
+More information: https://github.com/Vaiz/mediameta/blob/master/mediainfo.md
+    "#;
     which::which("mediainfo")
-        .with_context(|| "Cannot find mediainfo binary")
+        .with_context(|| ERROR_MSG)
         .map_err(anyhow::Error::from)
         .map_err(Arc::from)
 });
