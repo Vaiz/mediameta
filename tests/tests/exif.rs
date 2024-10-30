@@ -24,3 +24,16 @@ fn test_date() -> anyhow::Result<()> {
     assert_eq!(expected, meta);
     Ok(())
 }
+
+#[test]
+fn test_datetime_tag() -> anyhow::Result<()> {
+    let path = "test-data/sample-exif-tag-datetime.jpg";
+    let meta = mediameta::extract_file_metadata(path)?;
+    let expected = mediameta::MetaData {
+        width: 826,
+        height: 1062,
+        creation_date: Some(super::parse_date("2017-02-08T09:28:36")),
+    };
+    assert_eq!(expected, meta);
+    Ok(())
+}
