@@ -15,7 +15,7 @@ below to install `mediainfo` on your system.
 
 To install `mediainfo` on Windows, you can use the `winget` package manager:
 
-```
+```powershell
 winget install MediaArea.MediaInfo
 ```
 
@@ -25,7 +25,7 @@ winget install MediaArea.MediaInfo
 
 For macOS users, `mediainfo` can be installed using Homebrew:
 
-```
+```bash
 brew install mediainfo
 ```
 
@@ -33,7 +33,7 @@ brew install mediainfo
 
 On most Linux distributions, `mediainfo` can be installed via the package manager. For example:
 
-```
+```bash
 sudo apt-get install mediainfo  # Debian/Ubuntu
 sudo yum install mediainfo      # CentOS/RHEL
 sudo pacman -S mediainfo        # Arch Linux
@@ -43,7 +43,7 @@ sudo pacman -S mediainfo        # Arch Linux
 
 After installation, verify that `mediainfo` is available by running:
 
-```
+```bash
 mediainfo --version
 ```
 
