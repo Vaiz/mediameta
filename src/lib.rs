@@ -89,9 +89,18 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
 #[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
 pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
     let result1 = crate::extract_file_metadata(&file_path);
-    if let Ok(meta) = &result1 {
-        if meta.height > 0 && meta.width > 0 && meta.creation_date.is_some() {
-            return result1;
+    match &result1 {
+        Ok(meta) => {
+            if meta.height > 0 && meta.width > 0 && meta.creation_date.is_some() {
+                return result1;
+            }
+            log::debug!(
+                "Some metadata is missing, falling back to MediaInfo. Path: {}",
+                file_path.as_ref().to_string_lossy()
+            );
+        }
+        Err(e) => {
+            log::debug!("Failed to collect metadata for the file. Falling back to MediaInfo. Path: {}, Error: {e}", file_path.as_ref().to_string_lossy());
         }
     }
     let result2 = crate::mediainfo::extract_metadata(&file_path);
@@ -172,6 +181,8 @@ pub fn extract_file_creation_date<P: AsRef<Path>>(file_path: P) -> anyhow::Resul
 
     #[cfg(feature = "mediainfo")]
     if creation_date.is_err() {
+        log::debug!("Failed to extract creation date for the file, failing back to MediaInfo. Path: {}, Error: {}",
+            file_path.as_ref().to_string_lossy(), creation_date.as_ref().unwrap_err().to_string());
         if let Ok(meta) = mediainfo::extract_metadata(file_path) {
             if let Some(creation_date) = meta.creation_date {
                 return Ok(creation_date);

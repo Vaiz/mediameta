@@ -18,6 +18,7 @@ chrono = { version = "0.4.38", default-features = false, features = ["std"] }
 cmd_lib = { version = "1.9.5", optional = true }
 image = { version = "0.25.4", optional = true }
 kamadak-exif = "0.5.5"
+log = { version = "0.4.22", optional = true }
 matroska = "0.28.0"
 mp4 = "0.14.0"
 serde = { version = "1.0.214", optional = true, features = ["derive"] }
@@ -26,7 +27,10 @@ which = { version = "6.0.3", optional = true }
 
 [features]
 image = ["dep:image"]
-mediainfo = ["dep:cmd_lib", "dep:serde", "dep:serde_json", "dep:which"]
+mediainfo = ["dep:cmd_lib", "dep:serde", "dep:serde_json", "dep:which", "dep:log"]
+
+[dev-dependencies]
+colog = "1.3.0"
 
 [patch.crates-io]
 mp4 = { git = "https://github.com/alfg/mp4-rust.git", rev = "35560e94f5e871a2b2d88bfe964013b39af131e8" } # fix 'avcc not found'

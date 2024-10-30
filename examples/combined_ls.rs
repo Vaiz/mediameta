@@ -5,6 +5,10 @@ use std::time::SystemTime;
 
 /// cargo run --features=mediainfo --example combined_ls test-data
 fn main() -> anyhow::Result<()> {
+    colog::basic_builder()
+        .filter_level(log::LevelFilter::Debug)
+        .init();
+
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!("Usage: {} <directory_path>", args[0]);
