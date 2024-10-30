@@ -48,7 +48,7 @@ fn test_wrong_extension() -> anyhow::Result<()> {
     let path = "test-data/sample-mkv-files-sample_640x360_with_date.test";
     assert!(mediameta::extract_file_metadata(path).is_err());
 
-    let file = File::open(&path)?;
+    let file = File::open(path)?;
     let reader = BufReader::new(file);
 
     let meta = mediameta::extract_mkv_metadata(reader)?;
