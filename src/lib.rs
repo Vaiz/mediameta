@@ -72,7 +72,7 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
         .to_lowercase();
 
     match file_extension.as_str() {
-        "mp4" => Ok(ContainerType::Mp4),
+        "mp4" | "mov" => Ok(ContainerType::Mp4),
         "mkv" => Ok(ContainerType::Mkv),
         "jpg" | "jpeg" | "tiff" | "tif" | "webp" | "heif" | "heic" | "dng" | "cr2" | "cr3"
         | "nef" | "arw" | "raf" | "rw2" | "orf" => Ok(ContainerType::Exif(file_extension)),
