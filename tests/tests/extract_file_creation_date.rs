@@ -50,3 +50,22 @@ fn test_txt_file() {
     let path = "test-data/source.txt";
     assert!(extract_file_creation_date(path).is_err());
 }
+
+#[cfg(not(feature = "mediainfo"))]
+#[test]
+fn test_wrong_extension() {
+    let path = "test-data/sample-mkv-files-sample_640x360_with_date.test";
+    assert!(extract_file_creation_date(path).is_err());
+}
+
+#[cfg(feature = "mediainfo")]
+#[test]
+fn test_wrong_extension() -> anyhow::Result<()> {
+    let path = "test-data/sample-mkv-files-sample_640x360_with_date.test";
+    let creation_date = extract_file_creation_date(path)?;
+    let datetime: chrono::DateTime<chrono::Utc> = creation_date.into();
+    println!("{}", datetime.to_rfc3339());
+    let expected = super::parse_date("2011-04-17T17:33:45");
+    assert_eq!(expected, creation_date);
+    Ok(())
+}
