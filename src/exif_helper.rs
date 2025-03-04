@@ -1,5 +1,4 @@
-use crate::MetaData;
-use anyhow::Context;
+use crate::{Error, MetaData, Result};
 use exif::Tag;
 use std::io;
 
@@ -11,14 +10,12 @@ use std::time::SystemTime;
 /// This function reads Exif metadata from an image or media file using the `kamadak-exif` crate.
 /// If resolution information is missing from the Exif metadata and the `image` feature is enabled,
 /// it attempts to resolve the image's resolution using the `image` crate.
-pub fn extract_exif_metadata<R>(mut io: R, extension: String) -> anyhow::Result<MetaData>
+pub fn extract_exif_metadata<R>(mut io: R, extension: String) -> Result<MetaData>
 where
     R: io::BufRead + io::Seek,
 {
     let exifreader = exif::Reader::new();
-    let exif = exifreader
-        .read_from_container(&mut io)
-        .with_context(|| "Failed to read Exif container")?;
+    let exif = exifreader.read_from_container(&mut io)?;
 
     let (width, height) = get_width_and_height(&exif, io, extension);
     let creation_date = get_creation_date(&exif);
@@ -26,35 +23,32 @@ where
     Ok(MetaData {
         width,
         height,
-        creation_date,
+        creation_date: creation_date.ok(),
     })
 }
 
-pub(crate) fn extract_exif_creation_date<R>(mut io: R) -> anyhow::Result<SystemTime>
+pub(crate) fn extract_exif_creation_date<R>(mut io: R) -> Result<SystemTime>
 where
     R: io::BufRead + io::Seek,
 {
     let exifreader = exif::Reader::new();
-    let exif = exifreader
-        .read_from_container(&mut io)
-        .with_context(|| "Failed to read Exif container")?;
+    let exif = exifreader.read_from_container(&mut io)?;
 
-    get_creation_date(&exif).with_context(|| "EXIF doesn't contain creation date")
+    get_creation_date(&exif)
 }
 
-fn get_creation_date(exif: &exif::Exif) -> Option<SystemTime> {
+fn get_creation_date(exif: &exif::Exif) -> Result<SystemTime> {
     for tag in [Tag::DateTimeOriginal, Tag::DateTimeDigitized, Tag::DateTime] {
         let creation_date = exif.get_field(tag, exif::In::PRIMARY);
         if let Some(creation_date) = creation_date {
             let date_str = creation_date.display_value().with_unit(exif).to_string();
             let date = NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S")
                 .map(|naive_datetime| SystemTime::from(Utc.from_utc_datetime(&naive_datetime)))
-                .with_context(|| format!("Failed to parse datetime {date_str}"))
-                .unwrap();
-            return Some(date);
+                .map_err(|_| Error::FailedToParseDateTime(date_str))?;
+            return Ok(date);
         }
     }
-    None
+    Err(Error::CreationDateNotFound)
 }
 
 #[allow(unused_mut, unused_variables)]

@@ -1,5 +1,5 @@
-use crate::MetaData;
-use anyhow::Context;
+use crate::Result;
+use crate::{Error, MetaData};
 use mp4::Mp4Track;
 use std::collections::HashMap;
 use std::io;
@@ -9,12 +9,8 @@ use std::time::SystemTime;
 ///
 /// This function utilizes the `mp4` crate to obtain metadata, including dimensions and creation
 /// date, from an MP4 container.
-pub fn extract_mp4_metadata<R: io::Read + io::Seek>(
-    io: R,
-    file_size: u64,
-) -> anyhow::Result<MetaData> {
-    let mp4 =
-        mp4::Mp4Reader::read_header(io, file_size).with_context(|| "Failed to read MP4 header")?;
+pub fn extract_mp4_metadata<R: io::Read + io::Seek>(io: R, file_size: u64) -> Result<MetaData> {
+    let mp4 = mp4::Mp4Reader::read_header(io, file_size)?;
 
     let video_track = find_video_track(mp4.tracks());
     let (width, height) = if let Some(track) = video_track {
@@ -35,12 +31,10 @@ pub fn extract_mp4_metadata<R: io::Read + io::Seek>(
 pub(crate) fn extract_mp4_creation_date<R: io::Read + io::Seek>(
     io: R,
     file_size: u64,
-) -> anyhow::Result<SystemTime> {
-    let mp4 =
-        mp4::Mp4Reader::read_header(io, file_size).with_context(|| "Failed to read MP4 header")?;
+) -> Result<SystemTime> {
+    let mp4 = mp4::Mp4Reader::read_header(io, file_size)?;
 
-    convert_mp4_time_to_system_time(mp4.moov.mvhd.creation_time)
-        .with_context(|| "MP4 creation date is not set")
+    convert_mp4_time_to_system_time(mp4.moov.mvhd.creation_time).ok_or(Error::CreationDateNotFound)
 }
 
 fn convert_mp4_time_to_system_time(mp4_time: u64) -> Option<SystemTime> {

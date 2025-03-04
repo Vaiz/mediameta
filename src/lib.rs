@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+mod error;
 mod exif_helper;
 mod mkv_helper;
 mod mp4_helper;
@@ -9,7 +10,6 @@ mod mp4_helper;
 #[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
 pub mod mediainfo;
 
-use anyhow::Context;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io;
@@ -17,6 +17,7 @@ use std::io::BufReader;
 use std::path::Path;
 use std::time::SystemTime;
 
+pub use error::{Error, Result};
 pub use exif_helper::extract_exif_metadata;
 pub use mkv_helper::extract_mkv_metadata;
 pub use mp4_helper::extract_mp4_metadata;
@@ -63,7 +64,7 @@ pub enum ContainerType {
 /// This function determines the container type from file extension, which is required by the
 /// [`extract_metadata`] function. It can identify common types, including MP4, MKV, and Exif-based
 /// formats.
-pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<ContainerType> {
+pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> Result<ContainerType> {
     let file_extension = file_path
         .as_ref()
         .extension()
@@ -76,7 +77,7 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
         "mkv" => Ok(ContainerType::Mkv),
         "jpg" | "jpeg" | "tiff" | "tif" | "webp" | "heif" | "heic" | "dng" | "cr2" | "cr3"
         | "nef" | "arw" | "raf" | "rw2" | "orf" => Ok(ContainerType::Exif(file_extension)),
-        _ => anyhow::bail!("Unsupported container format: {}", file_extension),
+        _ => Err(Error::UnsupportedContainerType(file_extension)),
     }
 }
 
@@ -87,7 +88,7 @@ pub fn get_container_type<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Contai
 /// the most efficient way of receiving metadata of any media file.
 #[cfg(feature = "mediainfo")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mediainfo")))]
-pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
+pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> Result<MetaData> {
     let result1 = crate::extract_file_metadata(&file_path);
     match &result1 {
         Ok(meta) => {
@@ -136,14 +137,9 @@ pub fn extract_combined_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result
 ///
 /// This function opens a file using [BufReader], and then calls
 /// [`extract_metadata`].
-pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<MetaData> {
+pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> Result<MetaData> {
     let container_type = get_container_type(&file_path)?;
-    let file = File::open(&file_path).with_context(|| {
-        format!(
-            "Failed to open file {}",
-            file_path.as_ref().to_string_lossy()
-        )
-    })?;
+    let file = File::open(&file_path)?;
     let size = file.metadata()?.len();
     let reader = BufReader::new(file);
     extract_metadata(reader, size, container_type)
@@ -153,11 +149,7 @@ pub fn extract_file_metadata<P: AsRef<Path>>(file_path: P) -> anyhow::Result<Met
 ///
 /// This function is useful when user code has already opened the file. It avoids unnecessary
 /// additional file access, making metadata extraction more efficient.
-pub fn extract_metadata<R>(
-    io: R,
-    file_size: u64,
-    container_type: ContainerType,
-) -> anyhow::Result<MetaData>
+pub fn extract_metadata<R>(io: R, file_size: u64, container_type: ContainerType) -> Result<MetaData>
 where
     R: io::BufRead + io::Seek,
 {
@@ -176,7 +168,7 @@ where
 ///
 /// Since it only extracts the creation date, this function is more efficient than
 /// [`extract_combined_metadata`], which gathers additional metadata fields.
-pub fn extract_file_creation_date<P: AsRef<Path>>(file_path: P) -> anyhow::Result<SystemTime> {
+pub fn extract_file_creation_date<P: AsRef<Path>>(file_path: P) -> Result<SystemTime> {
     let creation_date = extract_creation_date_native(&file_path);
 
     #[cfg(feature = "mediainfo")]
@@ -193,14 +185,9 @@ pub fn extract_file_creation_date<P: AsRef<Path>>(file_path: P) -> anyhow::Resul
     creation_date
 }
 
-fn extract_creation_date_native<P: AsRef<Path>>(file_path: P) -> anyhow::Result<SystemTime> {
+fn extract_creation_date_native<P: AsRef<Path>>(file_path: P) -> Result<SystemTime> {
     let container_type = get_container_type(&file_path)?;
-    let file = File::open(&file_path).with_context(|| {
-        format!(
-            "Failed to open file {}",
-            file_path.as_ref().to_string_lossy()
-        )
-    })?;
+    let file = File::open(&file_path)?;
     let file_size = file.metadata()?.len();
     let io = BufReader::new(file);
     match container_type {
