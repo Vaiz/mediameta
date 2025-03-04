@@ -17,13 +17,13 @@ anyhow = "1.0.91"
 chrono = { version = "0.4.38", default-features = false, features = ["std"] }
 cmd_lib = { version = "1.9.5", optional = true }
 image = { version = "0.25.4", optional = true }
-kamadak-exif = "0.5.5"
+kamadak-exif = "0.6.1"
 log = { version = "0.4.22", optional = true }
 matroska = "0.28.0"
 mp4 = "0.14.0"
 serde = { version = "1.0.214", optional = true, features = ["derive"] }
 serde_json = { version = "1.0.132", optional = true }
-which = { version = "6.0.3", optional = true }
+which = { version = "7.0.2", optional = true }
 
 [features]
 image = ["dep:image"]
@@ -50,4 +50,3 @@ required-features = ["mediainfo"]
 [[example]]
 name = "mediainfo_ls"
 required-features = ["mediainfo"]
-
