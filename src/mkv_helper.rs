@@ -1,5 +1,4 @@
-use crate::MetaData;
-use anyhow::Context;
+use crate::{MetaData, Result};
 use matroska::Settings;
 use std::io;
 use std::time::SystemTime;
@@ -8,9 +7,8 @@ use std::time::SystemTime;
 ///
 /// This function uses the `Matroska` crate to retrieve metadata, such as video dimensions and creation date,
 /// from an MKV container.
-pub fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<MetaData> {
-    let matroska =
-        matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;
+pub fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> Result<MetaData> {
+    let matroska = matroska::Matroska::open(io)?;
     let video_track = matroska.video_tracks().next();
     let (width, height) = if let Some(video_track) = video_track {
         if let Settings::Video(video) = &video_track.settings {
@@ -35,18 +33,15 @@ pub fn extract_mkv_metadata<R: io::Read + io::Seek>(io: R) -> anyhow::Result<Met
     })
 }
 
-pub(crate) fn extract_mkv_creation_date<R: io::Read + io::Seek>(
-    io: R,
-) -> anyhow::Result<SystemTime> {
-    let matroska =
-        matroska::Matroska::open(io).with_context(|| "Failed to load Matroska container")?;
+pub(crate) fn extract_mkv_creation_date<R: io::Read + io::Seek>(io: R) -> Result<SystemTime> {
+    let matroska = matroska::Matroska::open(io)?;
 
     matroska
         .info
         .date_utc
         .as_ref()
         .map(convert_mkv_time_to_system_time)
-        .with_context(|| "MKV creation date is not set")
+        .ok_or(crate::Error::CreationDateNotFound)
 }
 
 fn convert_mkv_time_to_system_time(mkv_time: &matroska::DateTime) -> SystemTime {
