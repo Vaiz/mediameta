@@ -87,17 +87,17 @@ struct GeneralTrack {
 
 #[derive(serde::Deserialize, Debug)]
 struct VideoTrack {
-    #[serde(rename = "Width")]
+    #[serde(rename = "Width", deserialize_with = "parse_string_to_u64")]
     width: u64,
-    #[serde(rename = "Height")]
+    #[serde(rename = "Height", deserialize_with = "parse_string_to_u64")]
     height: u64,
 }
 
 #[derive(serde::Deserialize, Debug)]
 struct ImageTrack {
-    #[serde(rename = "Width")]
+    #[serde(rename = "Width", deserialize_with = "parse_string_to_u64")]
     width: u64,
-    #[serde(rename = "Height")]
+    #[serde(rename = "Height", deserialize_with = "parse_string_to_u64")]
     height: u64,
 }
 
@@ -109,6 +109,16 @@ struct Media {
 #[derive(serde::Deserialize, Debug)]
 struct Root {
     media: Media,
+}
+
+fn parse_string_to_u64<'de, D>(deserializer: D) -> std::result::Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{Error, Unexpected};
+    let s: &str = serde::Deserialize::deserialize(deserializer)?;
+    s.parse::<u64>()
+        .map_err(|_| Error::invalid_value(Unexpected::Str(s), &"int"))
 }
 
 fn parse_datetime(datetime: &str) -> Result<SystemTime> {
