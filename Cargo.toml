@@ -50,4 +50,3 @@ required-features = ["mediainfo"]
 [[example]]
 name = "mediainfo_ls"
 required-features = ["mediainfo"]
-
