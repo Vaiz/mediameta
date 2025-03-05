@@ -712,7 +712,7 @@ dependencies = [
  "kamadak-exif",
  "log",
  "matroska",
- "mp4",
+ "re_mp4",
  "serde",
  "serde_json",
  "thiserror 2.0.12",
@@ -748,19 +748,6 @@ checksum = "e2d80299ef12ff69b16a84bb182e3b9df68b5a91574d3d4fa6e41b65deec4df1"
 dependencies = [
  "adler2",
  "simd-adler32",
-]
-
-[[package]]
-name = "mp4"
-version = "0.14.0"
-source = "git+https://github.com/alfg/mp4-rust.git?rev=35560e94f5e871a2b2d88bfe964013b39af131e8#35560e94f5e871a2b2d88bfe964013b39af131e8"
-dependencies = [
- "byteorder",
- "bytes",
- "num-rational",
- "serde",
- "serde_json",
- "thiserror 1.0.65",
 ]
 
 [[package]]
@@ -1105,6 +1092,20 @@ checksum = "1465873a3dfdaa8ae7cb14b4383657caab0b3e8a0aa9ae8e04b044854c8dfce2"
 dependencies = [
  "crossbeam-deque",
  "crossbeam-utils",
+]
+
+[[package]]
+name = "re_mp4"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "751650322999417b64a5a89b034b4e34e4596826e5dfee9327856db77ca511e3"
+dependencies = [
+ "byteorder",
+ "bytes",
+ "num-rational",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.65",
 ]
 
 [[package]]
