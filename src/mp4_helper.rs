@@ -48,7 +48,9 @@ fn convert_mp4_time_to_system_time(mp4_time: u64) -> Option<SystemTime> {
     Some(utc.into())
 }
 
-fn find_video_track<'a>(tracks: impl IntoIterator<Item = (&'a u32, &'a Track)>) -> Option<&'a Track> {
+fn find_video_track<'a>(
+    tracks: impl IntoIterator<Item = (&'a u32, &'a Track)>,
+) -> Option<&'a Track> {
     use mp4::TrackKind;
     const NOT_VIDEO: TrackKind = TrackKind::Subtitle;
     tracks
