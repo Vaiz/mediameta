@@ -15,7 +15,7 @@ exclude = [".github", "test-data/**", "tests/**", "scripts/**"]
 [dependencies]
 chrono = { version = "0.4.38", default-features = false, features = ["std"] }
 cmd_lib = { version = "1.9.5", optional = true }
-image = { version = "0.25.4", optional = true }
+image = { version = "0.25.5", optional = true }
 kamadak-exif = "0.6.1"
 log = { version = "0.4.22", optional = true }
 matroska = "0.28.0"
