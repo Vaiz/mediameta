@@ -1,3 +1,4 @@
+use crate::error::MediainfoError;
 use crate::{Error, MetaData, Result};
 use chrono::prelude::*;
 use cmd_lib::run_fun;
@@ -18,19 +19,19 @@ static MEDIAINFO_PATH: LazyLock<Option<PathBuf>> = LazyLock::new(|| which::which
 pub fn extract_metadata<P: AsRef<Path>>(file_path: P) -> Result<MetaData> {
     let mediainfo = (*MEDIAINFO_PATH)
         .as_ref()
-        .ok_or(Error::MediaInfoToolNotFound)?;
+        .ok_or(MediainfoError::ToolNotFound)?;
     let file_path = file_path.as_ref();
     if !file_path.exists() {
         return Err(std::io::Error::from(std::io::ErrorKind::NotFound).into());
     }
 
     let result = run_fun!($mediainfo --Output=JSON $file_path)
-        .map_err(|e| Error::MediainfoError(e.to_string()))?;
+        .map_err(|e| MediainfoError::CommandError(e.to_string()))?;
     extract_metadata_from_json(&result)
 }
 
 fn extract_metadata_from_json(json: &str) -> Result<MetaData> {
-    let root: Root = serde_json::from_str(json)?;
+    let root: Root = serde_json::from_str(json).map_err(MediainfoError::from)?;
     let mut metadata = MetaData {
         width: 0,
         height: 0,
@@ -63,7 +64,7 @@ fn extract_metadata_from_json(json: &str) -> Result<MetaData> {
     if is_media {
         Ok(metadata)
     } else {
-        Err(Error::MetadataNotFound)
+        Err(MediainfoError::MetadataNotFound.into())
     }
 }
 
@@ -124,7 +125,7 @@ where
 fn parse_datetime(datetime: &str) -> Result<SystemTime> {
     let datetime = datetime.trim_start_matches("UTC ").trim_end_matches(" UTC");
     let datetime: DateTime<Utc> = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%d %H:%M:%S")
-        .map_err(|_| Error::FailedToParseDateTime(datetime.to_string()))?
+        .map_err(|_| Error::DateTimeParseError(datetime.to_string()))?
         .and_utc();
     Ok(datetime.into())
 }
