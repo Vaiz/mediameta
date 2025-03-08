@@ -125,7 +125,7 @@ where
 fn parse_datetime(datetime: &str) -> Result<SystemTime> {
     let datetime = datetime.trim_start_matches("UTC ").trim_end_matches(" UTC");
     let datetime: DateTime<Utc> = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%d %H:%M:%S")
-        .map_err(|_| Error::FailedToParseDateTime(datetime.to_string()))?
+        .map_err(|_| Error::DateTimeParseError(datetime.to_string()))?
         .and_utc();
     Ok(datetime.into())
 }

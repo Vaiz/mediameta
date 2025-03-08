@@ -19,7 +19,7 @@ pub enum Error {
     CreationDateNotFound,
 
     #[error("Failed to parse datetime: {0}")]
-    FailedToParseDateTime(String),
+    DateTimeParseError(String),
 
     #[cfg(feature = "mediainfo")]
     #[error("Mediainfo error: {0}")]
