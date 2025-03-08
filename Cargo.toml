@@ -1,6 +1,6 @@
 [package]
 name = "mediameta"
-version = "0.1.3"
+version = "0.2.0"
 edition = "2021"
 description = "This library provides a straightforward API to extract metadata from media files."
 homepage = "https://github.com/Vaiz/mediameta"
