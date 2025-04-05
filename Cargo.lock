@@ -161,6 +161,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b81e1519b0d82120d2fd469d5bfb2919a9361c48b02d82d04befc1cdd2002452"
 
 [[package]]
+name = "bitstream-io"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85bb111c3795bd7685f1339e5fc890e6a1fffe4aa6724432902b7ee9060c0e18"
+dependencies = [
+ "core2",
+]
+
+[[package]]
 name = "built"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -289,6 +298,15 @@ checksum = "cbf2150cce219b664a8a70df7a1f933836724b503f8a413af9365b4dcc4d90b8"
 dependencies = [
  "lazy_static",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "core2"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b49ba7ef1ad6107f8824dbe97de947cbaac53c44e7f9756a1fba0d37c1eec505"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]
@@ -683,11 +701,11 @@ dependencies = [
 
 [[package]]
 name = "matroska"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af40de5639384e5c16eed140751eaeb50a3643b31842295db1f84feff8697843"
+checksum = "ea7710081a5713e52ac0bd810256b9faf7c350564a605d2455f25e92bff393b8"
 dependencies = [
- "bitstream-io",
+ "bitstream-io 3.0.0",
  "phf",
 ]
 
@@ -1036,7 +1054,7 @@ dependencies = [
  "arg_enum_proc_macro",
  "arrayvec",
  "av1-grain",
- "bitstream-io",
+ "bitstream-io 2.5.3",
  "built",
  "cfg-if",
  "interpolate_name",
