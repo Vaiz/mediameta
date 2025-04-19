@@ -18,7 +18,7 @@ cmd_lib = { version = "1.9.5", optional = true }
 image = { version = "0.25.6", optional = true }
 kamadak-exif = "0.6.1"
 log = { version = "0.4.27", optional = true }
-matroska = "0.29.0"
+matroska = "0.30.0"
 mp4 = { package = "re_mp4", version = "0.3.0" }
 serde = { version = "1.0.219", optional = true, features = ["derive"] }
 serde_json = { version = "1.0.140", optional = true }
