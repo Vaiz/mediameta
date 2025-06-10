@@ -201,8 +201,13 @@ fn extract_creation_date_native<P: AsRef<Path>>(file_path: P) -> Result<SystemTi
 #[doc(hidden)]
 pub fn parse_date(date: &str) -> SystemTime {
     use chrono::prelude::*;
-    let naive_datetime =
-        NaiveDateTime::parse_from_str(date, "%Y-%m-%dT%H:%M:%S").expect("Failed to parse date");
+
+    let naive_datetime = if date.contains('.') {
+        NaiveDateTime::parse_from_str(date, "%Y-%m-%dT%H:%M:%S%.f")
+    } else {
+        NaiveDateTime::parse_from_str(date, "%Y-%m-%dT%H:%M:%S")
+    }
+    .expect("Failed to parse date");
 
     naive_datetime.and_utc().into()
 }

@@ -20,6 +20,9 @@ fn test_jpg_with_date() -> anyhow::Result<()> {
     let expected = mediameta::MetaData {
         width: 1200,
         height: 800,
+        #[cfg(windows)]
+        creation_date: Some(super::parse_date("2015-07-16T13:34:48.621")), // added in mediainfo 25.04
+        #[cfg(not(windows))]
         creation_date: None,
     };
     assert_eq!(expected, meta);
