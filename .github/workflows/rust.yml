@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
       - name: Build
         run: cargo build --verbose
@@ -27,7 +27,7 @@ jobs:
   build-with-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
       - name: Build
         run: cargo build --verbose --features=image
@@ -37,7 +37,7 @@ jobs:
   build-with-mediainfo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
       - name: Install MediaInfo
         run: |
@@ -51,7 +51,7 @@ jobs:
   build-with-mediainfo-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
       - uses: Cyberboss/install-winget@v1
       - name: Install MediaInfo
@@ -69,13 +69,13 @@ jobs:
     name: cargo fmt -- --check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: cargo fmt -- --check
 
   cargo-doc:
     name: RUSTDOCFLAGS='--deny warnings' cargo doc
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
       - run: RUSTDOCFLAGS='--deny warnings' cargo doc --locked --no-deps --document-private-items --all-features
