@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/Vaiz/mediameta/compare/v0.2.2...v0.2.3) - 2026-02-03
+
+### Other
+
+- bump bytes from 1.10.1 to 1.11.1 ([#51](https://github.com/Vaiz/mediameta/pull/51))
+- bump colog from 1.3.0 to 1.4.0 ([#47](https://github.com/Vaiz/mediameta/pull/47))
+- bump cmd_lib from 1.9.6 to 2.0.0 ([#46](https://github.com/Vaiz/mediameta/pull/46))
+- updates & cleanup ([#45](https://github.com/Vaiz/mediameta/pull/45))
+- bump cmd_lib from 1.9.5 to 1.9.6 ([#35](https://github.com/Vaiz/mediameta/pull/35))
+
 ## [0.2.2](https://github.com/Vaiz/mediameta/compare/v0.2.1...v0.2.2) - 2025-06-10
 
 ### Fixed
